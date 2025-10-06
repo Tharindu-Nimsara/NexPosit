@@ -1,0 +1,25 @@
+import express from "express";
+import {
+  create,
+  getUserContextsList,
+  getContext,
+  joinContext,
+  getMembers,
+  regenerateCode,
+} from "../controllers/context.controller.js";
+import { protect } from "../middleware/auth.middleware.js";
+
+const router = express.Router();
+
+// All routes are protected
+router.use(protect);
+
+// Context routes
+router.post("/", create); // Create context
+router.get("/", getUserContextsList); // Get user's contexts
+router.get("/:id", getContext); // Get single context
+router.post("/join/:code", joinContext); // Join via invite code
+router.get("/:id/members", getMembers); // Get context members
+router.post("/:id/regenerate-invite", regenerateCode); // Regenerate invite code
+
+export default router;
