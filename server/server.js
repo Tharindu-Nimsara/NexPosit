@@ -4,6 +4,8 @@ import dotenv from "dotenv";
 import { testConnection } from "./utils/supabase.js";
 import authRoutes from "./routes/auth.routes.js";
 import contextRoutes from "./routes/context.routes.js";
+import projectRoutes from "./routes/project.routes.js";
+import postRoutes from "./routes/post.routes.js";
 
 // Load environment variables
 dotenv.config();
@@ -43,6 +45,8 @@ app.get("/api/health", async (req, res) => {
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/contexts", contextRoutes);
+app.use("/api", projectRoutes);
+app.use("/api", postRoutes);
 
 // 404 handler
 app.use((req, res) => {

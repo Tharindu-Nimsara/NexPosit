@@ -1,11 +1,18 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Contexts from './pages/Contexts';
-import ContextDashboard from './pages/ContextDashboard';
-import JoinContext from './pages/JoinContext';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Contexts from "./pages/Contexts";
+import ContextDashboard from "./pages/ContextDashboard";
+import ProjectDetail from "./pages/ProjectDetail";
+import MainGrid from "./pages/MainGrid";
+import JoinContext from "./pages/JoinContext";
 
 function App() {
   return (
@@ -16,7 +23,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/join/:code" element={<JoinContext />} />
-          
+
           {/* Protected Routes */}
           <Route
             path="/contexts"
@@ -26,7 +33,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+
           <Route
             path="/contexts/:contextId/dashboard"
             element={
@@ -35,16 +42,34 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+
+          <Route
+            path="/contexts/:contextId/grid"
+            element={
+              <ProtectedRoute>
+                <MainGrid />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/contexts/:contextId/projects/:projectId"
+            element={
+              <ProtectedRoute>
+                <ProjectDetail />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Redirect old dashboard to contexts */}
           <Route
             path="/dashboard"
             element={<Navigate to="/contexts" replace />}
           />
-          
+
           {/* Default Route */}
           <Route path="/" element={<Navigate to="/contexts" replace />} />
-          
+
           {/* 404 */}
           <Route path="*" element={<Navigate to="/contexts" replace />} />
         </Routes>
