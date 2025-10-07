@@ -127,7 +127,7 @@ export const isContextAdmin = async (contextId, userId) => {
   return member?.role === "admin";
 };
 
-// Get context members
+// Get context members (FIXED - Flatten the data structure)
 export const getContextMembers = async (contextId) => {
   const { data, error } = await supabase
     .from("context_members")
@@ -136,6 +136,7 @@ export const getContextMembers = async (contextId) => {
       id,
       role,
       created_at,
+      user_id,
       users:user_id (
         id,
         email,
@@ -146,7 +147,16 @@ export const getContextMembers = async (contextId) => {
     .eq("context_id", contextId);
 
   if (error) throw error;
-  return data;
+
+  // Flatten the nested user data
+  return data.map((member) => ({
+    id: member.id,
+    user_id: member.user_id,
+    role: member.role,
+    created_at: member.created_at,
+    email: member.users?.email || "Unknown",
+    full_name: member.users?.full_name || "Unknown User",
+  }));
 };
 
 // Regenerate invite code

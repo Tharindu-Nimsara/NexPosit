@@ -7,6 +7,8 @@ import {
   isContextMember,
   isContextAdmin,
   getContextMembers,
+  updateContextMemberRole,
+  removeContextMember,
   regenerateInviteCode,
 } from "../models/context.model.js";
 import { isValidContextName } from "../utils/validators.js";
@@ -91,6 +93,8 @@ export const getContext = async (req, res) => {
         context: {
           ...context,
           user_role: membership.role,
+          isAdmin: membership.role === "admin",
+          isOwner: context.created_by === userId, // 🔒 Add owner flag
         },
       },
     });
@@ -162,11 +166,19 @@ export const getMembers = async (req, res) => {
       });
     }
 
+    // Get context to identify owner
+    const context = await getContextById(id);
     const members = await getContextMembers(id);
+
+    // 🔒 Add owner flag to each member
+    const membersWithOwner = members.map((member) => ({
+      ...member,
+      isOwner: member.user_id === context.created_by,
+    }));
 
     res.json({
       success: true,
-      data: { members },
+      data: { members: membersWithOwner },
     });
   } catch (error) {
     console.error("Get members error:", error);
@@ -209,6 +221,15 @@ export const updateMemberRole = async (req, res) => {
       });
     }
 
+    // 🔒 PROTECTION: Get context and check if target is the owner
+    const context = await getContextById(id);
+    if (memberUserId === context.created_by) {
+      return res.status(403).json({
+        success: false,
+        error: "Cannot change the role of the context owner",
+      });
+    }
+
     // Update role
     await updateContextMemberRole(id, memberUserId, role);
 
@@ -245,6 +266,15 @@ export const removeMember = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "You cannot remove yourself from the context",
+      });
+    }
+
+    // 🔒 PROTECTION: Get context and check if target is the owner
+    const context = await getContextById(id);
+    if (memberUserId === context.created_by) {
+      return res.status(403).json({
+        success: false,
+        error: "Cannot remove the context owner",
       });
     }
 

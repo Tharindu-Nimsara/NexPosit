@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { contextAPI, projectAPI } from "../services/api";
+import { format } from "date-fns";
 
 const PRESET_COLORS = [
   { name: "Blue", value: "#3B82F6" },
@@ -18,12 +19,17 @@ const ContextDashboard = () => {
   const navigate = useNavigate();
   const [context, setContext] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showMembersModal, setShowMembersModal] = useState(false);
   const [formData, setFormData] = useState({ name: "", color_code: "#3B82F6" });
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
+
+  // Get current user from localStorage
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     fetchContextData();
@@ -31,12 +37,14 @@ const ContextDashboard = () => {
 
   const fetchContextData = async () => {
     try {
-      const [contextRes, projectsRes] = await Promise.all([
+      const [contextRes, projectsRes, membersRes] = await Promise.all([
         contextAPI.getById(contextId),
         projectAPI.getByContext(contextId),
+        contextAPI.getMembers(contextId),
       ]);
       setContext(contextRes.data.context);
       setProjects(projectsRes.data.projects);
+      setMembers(membersRes.data.members);
     } catch (err) {
       console.error("Failed to fetch context data:", err);
       navigate("/contexts");
@@ -68,6 +76,50 @@ const ContextDashboard = () => {
     }
   };
 
+  const handlePromoteMember = async (userId) => {
+    if (!window.confirm("Promote this member to admin?")) return;
+
+    try {
+      await contextAPI.updateMemberRole(contextId, userId, "admin");
+      // Refresh members
+      const membersRes = await contextAPI.getMembers(contextId);
+      setMembers(membersRes.data.members);
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to promote member");
+    }
+  };
+
+  const handleDemoteMember = async (userId) => {
+    if (!window.confirm("Demote this admin to member?")) return;
+
+    try {
+      await contextAPI.updateMemberRole(contextId, userId, "member");
+      // Refresh members
+      const membersRes = await contextAPI.getMembers(contextId);
+      setMembers(membersRes.data.members);
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to demote admin");
+    }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    if (
+      !window.confirm(
+        "Remove this member? They will lose access to all projects in this context."
+      )
+    )
+      return;
+
+    try {
+      await contextAPI.removeMember(contextId, userId);
+      // Refresh members
+      const membersRes = await contextAPI.getMembers(contextId);
+      setMembers(membersRes.data.members);
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to remove member");
+    }
+  };
+
   const copyInviteLink = () => {
     const inviteLink = `${window.location.origin}/join/${context.invite_code}`;
     navigator.clipboard.writeText(inviteLink);
@@ -88,6 +140,8 @@ const ContextDashboard = () => {
   }
 
   const isAdmin = context.user_role === "admin";
+  const adminCount = members.filter((m) => m.role === "admin").length;
+  const memberCount = members.filter((m) => m.role === "member").length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -115,6 +169,14 @@ const ContextDashboard = () => {
                 {context.user_role}
               </span>
             </div>
+            {isAdmin && (
+              <button
+                onClick={() => setShowMembersModal(true)}
+                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition-colors"
+              >
+                👥 Manage Members ({members.length})
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -298,6 +360,147 @@ const ContextDashboard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Members Management Modal */}
+      {showMembersModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Manage Members
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">{context.name}</p>
+                </div>
+                <button
+                  onClick={() => setShowMembersModal(false)}
+                  className="text-gray-400 hover:text-gray-600 text-2xl"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="bg-blue-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {members.length}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Members</div>
+                </div>
+                <div className="bg-purple-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {adminCount}
+                  </div>
+                  <div className="text-sm text-gray-600">Admins</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-2xl font-bold text-gray-600">
+                    {memberCount}
+                  </div>
+                  <div className="text-sm text-gray-600">Members</div>
+                </div>
+              </div>
+
+              {/* Member List */}
+              <div className="space-y-3">
+                {members.map((member) => (
+                  <div
+                    key={member.user_id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold">
+                        {member.full_name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {member.full_name}
+                          {member.user_id === user?.id && (
+                            <span className="ml-2 text-sm text-gray-500">
+                              (You)
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {member.email}
+                        </div>
+                        <div className="text-xs text-gray-400">
+                          Joined{" "}
+                          {format(new Date(member.created_at), "MMM d, yyyy")}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {/* Show Owner badge for context creator */}
+                      {member.isOwner ? (
+                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                          Owner 👑
+                        </span>
+                      ) : (
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            member.role === "admin"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-gray-200 text-gray-700"
+                          }`}
+                        >
+                          {member.role === "admin" ? "Admin 👑" : "Member"}
+                        </span>
+                      )}
+
+                      {/* Only show action buttons if admin AND not the owner AND not yourself */}
+                      {context.isAdmin &&
+                        !member.isOwner &&
+                        member.user_id !== user?.id && (
+                          <>
+                            {member.role === "member" ? (
+                              <button
+                                onClick={() =>
+                                  handlePromoteMember(member.user_id)
+                                }
+                                className="px-3 py-1 bg-purple-500 text-white text-sm rounded hover:bg-purple-600"
+                              >
+                                Promote
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() =>
+                                  handleDemoteMember(member.user_id)
+                                }
+                                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
+                              >
+                                Demote
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleRemoveMember(member.user_id)}
+                              className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                            >
+                              Remove
+                            </button>
+                          </>
+                        )}
+
+                      {/* Show protected message for owner */}
+                      {member.isOwner &&
+                        context.isAdmin &&
+                        member.user_id !== user?.id && (
+                          <span className="text-xs text-gray-500 italic">
+                            Protected
+                          </span>
+                        )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       )}

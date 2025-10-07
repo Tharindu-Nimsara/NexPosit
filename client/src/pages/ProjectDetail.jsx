@@ -912,14 +912,16 @@ const ProjectDetail = () => {
                     >
                       <div>
                         <p className="font-medium text-gray-900">
-                          {member.users.full_name}
+                          {member.users?.full_name || "Unknown User"}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {member.users.email}
+                          {member.users?.email || "No email"}
                         </p>
                       </div>
                       <button
-                        onClick={() => handleRemoveMember(member.users.id)}
+                        onClick={() =>
+                          handleRemoveMember(member.users?.id || member.user_id)
+                        }
                         className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
                       >
                         Remove
@@ -937,11 +939,13 @@ const ProjectDetail = () => {
               </h4>
               {(() => {
                 // Filter out members already in the project
+                // contextMembers has flattened structure: { user_id, full_name, email, role }
+                // projectMembers has nested structure: { users: { id, full_name, email } }
                 const projectMemberIds = projectMembers.map(
-                  (pm) => pm.users.id
+                  (pm) => pm.users?.id || pm.user_id
                 );
                 const availableMembers = contextMembers.filter(
-                  (cm) => !projectMemberIds.includes(cm.users.id)
+                  (cm) => !projectMemberIds.includes(cm.user_id)
                 );
 
                 if (availableMembers.length === 0) {
@@ -961,17 +965,17 @@ const ProjectDetail = () => {
                       >
                         <div>
                           <p className="font-medium text-gray-900">
-                            {member.users.full_name}
+                            {member.full_name}
                           </p>
                           <p className="text-sm text-gray-600">
-                            {member.users.email}
+                            {member.email}
                           </p>
                           <p className="text-xs text-gray-500">
                             Role: {member.role}
                           </p>
                         </div>
                         <button
-                          onClick={() => handleAddMember(member.users.id)}
+                          onClick={() => handleAddMember(member.user_id)}
                           className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
                         >
                           Add
