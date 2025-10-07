@@ -5,6 +5,8 @@ import {
   getContext,
   joinContext,
   getMembers,
+  updateMemberRole,
+  removeMember,
   regenerateCode,
 } from "../controllers/context.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
@@ -20,6 +22,8 @@ router.get("/", getUserContextsList); // Get user's contexts
 router.get("/:id", getContext); // Get single context
 router.post("/join/:code", joinContext); // Join via invite code
 router.get("/:id/members", getMembers); // Get context members
+router.patch("/:id/members/:userId", updateMemberRole); // Update member role
+router.delete("/:id/members/:userId", removeMember); // Remove member
 router.post("/:id/regenerate-invite", regenerateCode); // Regenerate invite code
 
 export default router;

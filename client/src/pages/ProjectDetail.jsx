@@ -9,9 +9,12 @@ const ProjectDetail = () => {
   const [project, setProject] = useState(null);
   const [posts, setPosts] = useState([]);
   const [context, setContext] = useState(null);
+  const [contextMembers, setContextMembers] = useState([]);
+  const [projectMembers, setProjectMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showMembersModal, setShowMembersModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -37,6 +40,16 @@ const ProjectDetail = () => {
       setProject(projectRes.data.project);
       setPosts(postsRes.data.posts);
       setContext(contextRes.data.context);
+
+      // Fetch members if admin
+      if (contextRes.data.context.user_role === "admin") {
+        const [contextMembersRes, projectMembersRes] = await Promise.all([
+          contextAPI.getMembers(contextId),
+          projectAPI.getMembers(projectId),
+        ]);
+        setContextMembers(contextMembersRes.data.members);
+        setProjectMembers(projectMembersRes.data.members);
+      }
     } catch (err) {
       console.error("Failed to fetch data:", err);
       navigate(`/contexts/${contextId}/dashboard`);
@@ -180,6 +193,37 @@ const ProjectDetail = () => {
     }
   };
 
+  const handleAddMember = async (userId) => {
+    try {
+      await projectAPI.addMember(projectId, userId);
+      // Refetch project members
+      const projectMembersRes = await projectAPI.getMembers(projectId);
+      setProjectMembers(projectMembersRes.data.members);
+    } catch (err) {
+      console.error("Failed to add member:", err);
+      alert(err.response?.data?.error || "Failed to add member");
+    }
+  };
+
+  const handleRemoveMember = async (userId) => {
+    if (
+      !window.confirm(
+        "Are you sure you want to remove this member from the project?"
+      )
+    )
+      return;
+
+    try {
+      await projectAPI.removeMember(projectId, userId);
+      // Refetch project members
+      const projectMembersRes = await projectAPI.getMembers(projectId);
+      setProjectMembers(projectMembersRes.data.members);
+    } catch (err) {
+      console.error("Failed to remove member:", err);
+      alert(err.response?.data?.error || "Failed to remove member");
+    }
+  };
+
   const formatTime = (post) => {
     if (post.specific_time) {
       return format(new Date(`2000-01-01T${post.specific_time}`), "h:mm a");
@@ -235,12 +279,22 @@ const ProjectDetail = () => {
                 />
               </h1>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-            >
-              + Create Post
-            </button>
+            <div className="flex gap-3">
+              {isAdmin && (
+                <button
+                  onClick={() => setShowMembersModal(true)}
+                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  👥 Manage Members
+                </button>
+              )}
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                + Create Post
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -248,7 +302,7 @@ const ProjectDetail = () => {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-lg shadow p-4">
             <p className="text-sm text-gray-600">Total Posts</p>
             <p className="text-2xl font-bold text-gray-900">{posts.length}</p>
@@ -263,6 +317,12 @@ const ProjectDetail = () => {
             <p className="text-sm text-gray-600">Approved</p>
             <p className="text-2xl font-bold text-green-500">
               {approvedPosts.length}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600">Team Members</p>
+            <p className="text-2xl font-bold text-blue-500">
+              {projectMembers.length}
             </p>
           </div>
         </div>
@@ -814,6 +874,123 @@ const ProjectDetail = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Manage Members Modal */}
+      {showMembersModal && isAdmin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-gray-900">
+                Manage Project Members
+              </h3>
+              <button
+                onClick={() => setShowMembersModal(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Current Project Members */}
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                Current Members ({projectMembers.length})
+              </h4>
+              {projectMembers.length === 0 ? (
+                <p className="text-gray-500 text-sm">
+                  No members assigned to this project yet.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {projectMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium text-gray-900">
+                          {member.users.full_name}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {member.users.email}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleRemoveMember(member.users.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Available Members to Add */}
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                Add Members
+              </h4>
+              {(() => {
+                // Filter out members already in the project
+                const projectMemberIds = projectMembers.map(
+                  (pm) => pm.users.id
+                );
+                const availableMembers = contextMembers.filter(
+                  (cm) => !projectMemberIds.includes(cm.users.id)
+                );
+
+                if (availableMembers.length === 0) {
+                  return (
+                    <p className="text-gray-500 text-sm">
+                      All context members are already assigned to this project.
+                    </p>
+                  );
+                }
+
+                return (
+                  <div className="space-y-2">
+                    {availableMembers.map((member) => (
+                      <div
+                        key={member.id}
+                        className="flex items-center justify-between p-3 bg-blue-50 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium text-gray-900">
+                            {member.users.full_name}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {member.users.email}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Role: {member.role}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleAddMember(member.users.id)}
+                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                        >
+                          Add
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowMembersModal(false)}
+                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+              >
+                Done
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -83,6 +83,21 @@ export const contextAPI = {
     return response.data;
   },
 
+  updateMemberRole: async (contextId, userId, role) => {
+    const response = await api.patch(
+      `/contexts/${contextId}/members/${userId}`,
+      { role }
+    );
+    return response.data;
+  },
+
+  removeMember: async (contextId, userId) => {
+    const response = await api.delete(
+      `/contexts/${contextId}/members/${userId}`
+    );
+    return response.data;
+  },
+
   regenerateInviteCode: async (id) => {
     const response = await api.post(`/contexts/${id}/regenerate-invite`);
     return response.data;
