@@ -3,6 +3,7 @@ import {
   getProjectsByContext,
   getProjectById,
   updateProject,
+  deleteProject as deleteProjectModel,
   addProjectMember,
   removeProjectMember,
   getProjectMembers,
@@ -163,6 +164,38 @@ export const update = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to update project",
+    });
+  }
+};
+
+// Delete project (admin only)
+export const deleteProject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    const project = await getProjectById(id);
+
+    // Check if user is admin
+    const isAdmin = await isContextAdmin(project.context_id, userId);
+    if (!isAdmin) {
+      return res.status(403).json({
+        success: false,
+        error: "Only admins can delete projects",
+      });
+    }
+
+    await deleteProjectModel(id); // ← Use the aliased import
+
+    res.json({
+      success: true,
+      message: "Project deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete project error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to delete project",
     });
   }
 };

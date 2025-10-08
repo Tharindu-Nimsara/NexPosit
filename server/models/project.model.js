@@ -125,3 +125,14 @@ export const isProjectMember = async (projectId, userId) => {
   if (error && error.code !== "PGRST116") throw error;
   return !!data;
 };
+
+// Delete project
+export const deleteProject = async (projectId) => {
+  const { error } = await supabase
+    .from("projects")
+    .delete()
+    .eq("id", projectId);
+
+  if (error) throw error;
+  return true;
+};

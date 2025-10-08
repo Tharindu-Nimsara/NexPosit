@@ -16,16 +16,24 @@ const ProjectDetail = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showMembersModal, setShowMembersModal] = useState(false);
+  const [showEditProjectModal, setShowEditProjectModal] = useState(false);
+  const [showDeleteProjectModal, setShowDeleteProjectModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     publish_date: "",
-    time_type: "slot", // 'slot' or 'specific'
+    time_type: "slot",
     publish_time_slot: "morning",
     specific_time: "",
   });
+  const [projectFormData, setProjectFormData] = useState({
+    name: "",
+    description: "",
+    color_code: "#3B82F6",
+  });
   const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
+  const [updatingProject, setUpdatingProject] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -56,6 +64,49 @@ const ProjectDetail = () => {
       navigate(`/contexts/${contextId}/dashboard`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditProjectClick = () => {
+    setProjectFormData({
+      name: project.name,
+      description: project.description || "",
+      color_code: project.color_code,
+    });
+    setShowEditProjectModal(true);
+    setError("");
+  };
+
+  const handleUpdateProject = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (projectFormData.name.length < 3) {
+      setError("Project name must be at least 3 characters");
+      return;
+    }
+
+    setUpdatingProject(true);
+
+    try {
+      const response = await projectAPI.update(projectId, projectFormData);
+      setProject(response.data.project);
+      setShowEditProjectModal(false);
+      setProjectFormData({ name: "", description: "", color_code: "#3B82F6" });
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to update project");
+    } finally {
+      setUpdatingProject(false);
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    try {
+      await projectAPI.delete(projectId);
+      navigate(`/contexts/${contextId}/dashboard`);
+    } catch (err) {
+      console.error("Failed to delete project:", err);
+      alert(err.response?.data?.error || "Failed to delete project");
     }
   };
 
@@ -259,6 +310,18 @@ const ProjectDetail = () => {
   maxDate.setDate(maxDate.getDate() + 60);
   const maxDateStr = maxDate.toISOString().split("T")[0];
 
+  // Predefined color palette
+  const colorPalette = [
+    "#3B82F6", // Blue
+    "#10B981", // Green
+    "#F59E0B", // Orange
+    "#EF4444", // Red
+    "#8B5CF6", // Purple
+    "#EC4899", // Pink
+    "#06B6D4", // Cyan
+    "#84CC16", // Lime
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -283,12 +346,26 @@ const ProjectDetail = () => {
             <div className="flex items-center gap-3">
               <DarkModeToggle />
               {isAdmin && (
-                <button
-                  onClick={() => setShowMembersModal(true)}
-                  className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  👥 Manage Members
-                </button>
+                <>
+                  <button
+                    onClick={handleEditProjectClick}
+                    className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    ✏️ Edit Project
+                  </button>
+                  <button
+                    onClick={() => setShowDeleteProjectModal(true)}
+                    className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    🗑️ Delete
+                  </button>
+                  <button
+                    onClick={() => setShowMembersModal(true)}
+                    className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
+                    👥 Members
+                  </button>
+                </>
               )}
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -303,6 +380,15 @@ const ProjectDetail = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Project Description */}
+        {project.description && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+            <p className="text-sm text-blue-800 dark:text-blue-300">
+              {project.description}
+            </p>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -598,6 +684,148 @@ const ProjectDetail = () => {
           </div>
         )}
       </main>
+
+      {/* Edit Project Modal */}
+      {showEditProjectModal && isAdmin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Edit Project
+            </h3>
+
+            {error && (
+              <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 p-4 mb-4 rounded">
+                <p className="text-red-700 dark:text-red-300 text-sm">
+                  {error}
+                </p>
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateProject}>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Project Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={projectFormData.name}
+                  onChange={(e) =>
+                    setProjectFormData({
+                      ...projectFormData,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  placeholder="My Project"
+                />
+              </div>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Description (optional)
+                </label>
+                <textarea
+                  value={projectFormData.description}
+                  onChange={(e) =>
+                    setProjectFormData({
+                      ...projectFormData,
+                      description: e.target.value,
+                    })
+                  }
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                  rows="3"
+                  placeholder="Brief description..."
+                />
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Project Color
+                </label>
+                <div className="grid grid-cols-4 gap-3">
+                  {colorPalette.map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() =>
+                        setProjectFormData({
+                          ...projectFormData,
+                          color_code: color,
+                        })
+                      }
+                      className={`w-full h-12 rounded-lg transition-all ${
+                        projectFormData.color_code === color
+                          ? "ring-4 ring-offset-2 ring-blue-500 dark:ring-blue-400 dark:ring-offset-gray-800"
+                          : "hover:scale-105"
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditProjectModal(false);
+                    setProjectFormData({
+                      name: "",
+                      description: "",
+                      color_code: "#3B82F6",
+                    });
+                    setError("");
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updatingProject}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {updatingProject ? "Updating..." : "Update Project"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Project Confirmation Modal */}
+      {showDeleteProjectModal && isAdmin && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mb-4">
+              ⚠️ Delete Project
+            </h3>
+            <p className="text-gray-700 dark:text-gray-300 mb-2">
+              Are you sure you want to delete <strong>{project.name}</strong>?
+            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              This will permanently delete the project and all {posts.length}{" "}
+              posts associated with it. This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteProjectModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteProject}
+                className="flex-1 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+              >
+                Delete Project
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create Post Modal */}
       {showCreateModal && (

@@ -129,6 +129,11 @@ export const projectAPI = {
     return response.data;
   },
 
+  delete: async (id) => {
+    const response = await api.delete(`/projects/${id}`);
+    return response.data;
+  },
+
   addMember: async (projectId, userId) => {
     const response = await api.post(`/projects/${projectId}/members`, {
       user_id: userId,

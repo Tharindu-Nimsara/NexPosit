@@ -4,6 +4,7 @@ import {
   getContextProjects,
   getProject,
   update,
+  deleteProject,
   addMember,
   removeMember,
   getMembers,
@@ -20,6 +21,7 @@ router.post("/contexts/:contextId/projects", create); // Create project
 router.get("/contexts/:contextId/projects", getContextProjects); // Get context projects
 router.get("/projects/:id", getProject); // Get single project
 router.patch("/projects/:id", update); // Update project
+router.delete("/projects/:id", deleteProject); // Delete project
 router.post("/projects/:id/members", addMember); // Add member
 router.delete("/projects/:id/members/:userId", removeMember); // Remove member
 router.get("/projects/:id/members", getMembers); // Get members
