@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { contextAPI, projectAPI } from "../services/api";
+import { contextAPI, projectAPI, postAPI } from "../services/api";
 import { format } from "date-fns";
 
 const PRESET_COLORS = [
@@ -20,6 +20,7 @@ const ContextDashboard = () => {
   const [context, setContext] = useState(null);
   const [projects, setProjects] = useState([]);
   const [members, setMembers] = useState([]);
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -37,14 +38,21 @@ const ContextDashboard = () => {
 
   const fetchContextData = async () => {
     try {
-      const [contextRes, projectsRes, membersRes] = await Promise.all([
-        contextAPI.getById(contextId),
-        projectAPI.getByContext(contextId),
-        contextAPI.getMembers(contextId),
-      ]);
+      const [contextRes, projectsRes, membersRes, postsRes] = await Promise.all(
+        [
+          contextAPI.getById(contextId),
+          projectAPI.getByContext(contextId),
+          contextAPI.getMembers(contextId),
+          postAPI.getByContext(contextId),
+        ]
+      );
+
+      console.log("Members data:", membersRes.data.members); // Debug log
+
       setContext(contextRes.data.context);
       setProjects(projectsRes.data.projects);
-      setMembers(membersRes.data.members);
+      setMembers(membersRes.data.members || []);
+      setPosts(postsRes.data.posts || []);
     } catch (err) {
       console.error("Failed to fetch context data:", err);
       navigate("/contexts");
@@ -142,6 +150,39 @@ const ContextDashboard = () => {
   const isAdmin = context.user_role === "admin";
   const adminCount = members.filter((m) => m.role === "admin").length;
   const memberCount = members.filter((m) => m.role === "member").length;
+
+  // Format time for posts
+  const formatTime = (post) => {
+    if (post.specific_time) {
+      return format(new Date(`2000-01-01T${post.specific_time}`), "h:mm a");
+    }
+    if (post.publish_time_slot) {
+      return (
+        post.publish_time_slot.charAt(0).toUpperCase() +
+        post.publish_time_slot.slice(1)
+      );
+    }
+    return "No time";
+  };
+
+  // Get posts for next 4 days
+  const getUpcomingPosts = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const fourDaysLater = new Date();
+    fourDaysLater.setDate(fourDaysLater.getDate() + 4);
+    fourDaysLater.setHours(23, 59, 59, 999);
+
+    return posts
+      .filter((post) => {
+        const postDate = new Date(post.publish_date);
+        return postDate >= today && postDate <= fourDaysLater;
+      })
+      .sort((a, b) => new Date(a.publish_date) - new Date(b.publish_date));
+  };
+
+  const upcomingPosts = getUpcomingPosts();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -273,6 +314,221 @@ const ContextDashboard = () => {
                   </p>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+
+        {/* Coming Posts Preview */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900">
+              Coming Posts (Next 4 Days)
+            </h2>
+            <button
+              onClick={() => navigate(`/contexts/${contextId}/grid`)}
+              className="text-blue-500 hover:text-blue-600 font-medium text-sm"
+            >
+              Show More →
+            </button>
+          </div>
+
+          {upcomingPosts.length === 0 ? (
+            <div className="bg-white rounded-lg shadow-md p-8 text-center">
+              <p className="text-gray-500">
+                No posts scheduled for the next 4 days
+              </p>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Post Title
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Project
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {upcomingPosts.map((post) => {
+                      const project = projects.find(
+                        (p) => p.id === post.project_id
+                      );
+                      return (
+                        <tr
+                          key={post.id}
+                          onClick={() =>
+                            navigate(
+                              `/contexts/${contextId}/projects/${post.project_id}`
+                            )
+                          }
+                          className="hover:bg-gray-50 cursor-pointer transition-colors"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div
+                              className="rounded-lg px-3 py-2 border-l-4 inline-block"
+                              style={{
+                                backgroundColor: `${project?.color_code}15`,
+                                borderLeftColor:
+                                  project?.color_code || "#3B82F6",
+                              }}
+                            >
+                              <div
+                                className="text-xs font-medium uppercase"
+                                style={{
+                                  color: project?.color_code || "#3B82F6",
+                                }}
+                              >
+                                {format(new Date(post.publish_date), "MMM")}
+                              </div>
+                              <div
+                                className="text-2xl font-bold"
+                                style={{
+                                  color: project?.color_code || "#3B82F6",
+                                }}
+                              >
+                                {format(new Date(post.publish_date), "dd")}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {formatTime(post)}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-semibold text-gray-900">
+                              {post.title}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{
+                                  backgroundColor:
+                                    project?.color_code || "#3B82F6",
+                                }}
+                              />
+                              <span className="text-sm text-gray-700">
+                                {project?.name || "Unknown"}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                post.status === "approved"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-orange-100 text-orange-800"
+                              }`}
+                            >
+                              {post.status === "approved"
+                                ? "Approved"
+                                : "Pending"}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden divide-y divide-gray-200">
+                {upcomingPosts.map((post) => {
+                  const project = projects.find(
+                    (p) => p.id === post.project_id
+                  );
+                  return (
+                    <div
+                      key={post.id}
+                      onClick={() =>
+                        navigate(
+                          `/contexts/${contextId}/projects/${post.project_id}`
+                        )
+                      }
+                      className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <div className="flex gap-4">
+                        {/* Date Box */}
+                        <div
+                          className="rounded-lg px-3 py-2 border-l-4 flex-shrink-0"
+                          style={{
+                            backgroundColor: `${project?.color_code}15`,
+                            borderLeftColor: project?.color_code || "#3B82F6",
+                          }}
+                        >
+                          <div
+                            className="text-xs font-medium uppercase"
+                            style={{ color: project?.color_code || "#3B82F6" }}
+                          >
+                            {format(new Date(post.publish_date), "MMM")}
+                          </div>
+                          <div
+                            className="text-2xl font-bold"
+                            style={{ color: project?.color_code || "#3B82F6" }}
+                          >
+                            {format(new Date(post.publish_date), "dd")}
+                          </div>
+                        </div>
+
+                        {/* Post Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <h3 className="text-sm font-semibold text-gray-900 flex-1">
+                              {post.title}
+                            </h3>
+                            <span
+                              className={`px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
+                                post.status === "approved"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-orange-100 text-orange-800"
+                              }`}
+                            >
+                              {post.status === "approved"
+                                ? "Approved"
+                                : "Pending"}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            <div className="text-sm text-gray-600">
+                              <span className="font-medium">Time:</span>{" "}
+                              {formatTime(post)}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-3 h-3 rounded-full"
+                                style={{
+                                  backgroundColor:
+                                    project?.color_code || "#3B82F6",
+                                }}
+                              />
+                              <span className="text-sm text-gray-700">
+                                {project?.name || "Unknown"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
@@ -417,11 +673,13 @@ const ContextDashboard = () => {
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-semibold">
-                        {member.full_name.charAt(0).toUpperCase()}
+                        {member.full_name
+                          ? member.full_name.charAt(0).toUpperCase()
+                          : "?"}
                       </div>
                       <div>
                         <div className="font-medium text-gray-900">
-                          {member.full_name}
+                          {member.full_name || "Unknown User"}
                           {member.user_id === user?.id && (
                             <span className="ml-2 text-sm text-gray-500">
                               (You)
@@ -429,11 +687,13 @@ const ContextDashboard = () => {
                           )}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {member.email}
+                          {member.email || "No email"}
                         </div>
                         <div className="text-xs text-gray-400">
                           Joined{" "}
-                          {format(new Date(member.created_at), "MMM d, yyyy")}
+                          {member.created_at
+                            ? format(new Date(member.created_at), "MMM d, yyyy")
+                            : "Unknown"}
                         </div>
                       </div>
                     </div>
