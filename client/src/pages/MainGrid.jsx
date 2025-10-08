@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { postAPI, projectAPI, contextAPI } from "../services/api";
 import { format } from "date-fns";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 const MainGrid = () => {
   const { contextId } = useParams();
@@ -60,49 +61,52 @@ const MainGrid = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate(`/contexts/${contextId}/dashboard`)}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 ← Back
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Main Schedule
                 </h1>
-                <p className="text-sm text-gray-600">{context?.name}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  {context?.name}
+                </p>
               </div>
             </div>
+            <DarkModeToggle />
           </div>
         </div>
       </header>
 
       {/* Filters */}
-      <div className="bg-white border-b">
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Project Filter */}
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Filter by Project
               </label>
               <select
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="all">All Projects</option>
                 {projects.map((project) => (
@@ -115,13 +119,13 @@ const MainGrid = () => {
 
             {/* Status Filter */}
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Filter by Status
               </label>
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -136,27 +140,29 @@ const MainGrid = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Total Posts</p>
-            <p className="text-2xl font-bold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Total Posts
+            </p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
               {filteredPosts.length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Projects</p>
-            <p className="text-2xl font-bold text-blue-500">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Projects</p>
+            <p className="text-2xl font-bold text-blue-500 dark:text-blue-400">
               {projects.length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Pending</p>
-            <p className="text-2xl font-bold text-orange-500">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Pending</p>
+            <p className="text-2xl font-bold text-orange-500 dark:text-orange-400">
               {filteredPosts.filter((p) => p.status === "pending").length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Approved</p>
-            <p className="text-2xl font-bold text-green-500">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Approved</p>
+            <p className="text-2xl font-bold text-green-500 dark:text-green-400">
               {filteredPosts.filter((p) => p.status === "approved").length}
             </p>
           </div>
@@ -164,8 +170,8 @@ const MainGrid = () => {
 
         {/* Posts Table */}
         {filteredPosts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-500 mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
               {posts.length === 0
                 ? "No posts yet"
                 : "No posts match your filters"}
@@ -173,40 +179,40 @@ const MainGrid = () => {
             {posts.length === 0 && (
               <button
                 onClick={() => navigate(`/contexts/${contextId}/dashboard`)}
-                className="text-blue-500 hover:text-blue-600 font-medium"
+                className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition-colors"
               >
                 Go to dashboard to create posts
               </button>
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Time
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Post Title
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Project
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Created By
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {filteredPosts.map((post) => {
                     const project = projects.find(
                       (p) => p.id === post.project_id
@@ -219,30 +225,30 @@ const MainGrid = () => {
                             `/contexts/${contextId}/projects/${post.project_id}`
                           )
                         }
-                        className="hover:bg-gray-50 cursor-pointer transition-colors"
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="bg-blue-100 rounded-lg px-3 py-2 border-l-4 border-blue-500">
-                              <div className="text-xs font-medium text-blue-600 uppercase">
+                            <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg px-3 py-2 border-l-4 border-blue-500">
+                              <div className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase">
                                 {format(new Date(post.publish_date), "MMM")}
                               </div>
-                              <div className="text-2xl font-bold text-blue-900">
+                              <div className="text-2xl font-bold text-blue-900 dark:text-blue-300">
                                 {format(new Date(post.publish_date), "dd")}
                               </div>
-                              <div className="text-xs text-blue-600">
+                              <div className="text-xs text-blue-600 dark:text-blue-400">
                                 {format(new Date(post.publish_date), "yyyy")}
                               </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
                             {formatTime(post)}
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm font-semibold text-gray-900">
+                          <div className="text-sm font-semibold text-gray-900 dark:text-white">
                             {post.title}
                           </div>
                         </td>
@@ -255,7 +261,7 @@ const MainGrid = () => {
                                   project?.color_code || "#3B82F6",
                               }}
                             />
-                            <span className="text-sm text-gray-700">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
                               {project?.name || "Unknown"}
                             </span>
                           </div>
@@ -264,8 +270,8 @@ const MainGrid = () => {
                           <span
                             className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                               post.status === "approved"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-orange-100 text-orange-800"
+                                ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                : "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200"
                             }`}
                           >
                             {post.status === "approved"
@@ -273,7 +279,7 @@ const MainGrid = () => {
                               : "Pending"}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                           {post.created_by_user?.full_name || "Unknown"}
                         </td>
                       </tr>
@@ -284,7 +290,7 @@ const MainGrid = () => {
             </div>
 
             {/* Mobile Cards */}
-            <div className="md:hidden divide-y divide-gray-200">
+            <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
               {filteredPosts.map((post) => {
                 const project = projects.find((p) => p.id === post.project_id);
                 return (
@@ -295,18 +301,18 @@ const MainGrid = () => {
                         `/contexts/${contextId}/projects/${post.project_id}`
                       )
                     }
-                    className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                    className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
                   >
                     <div className="flex gap-4">
                       {/* Date Box */}
-                      <div className="bg-blue-100 rounded-lg px-3 py-2 border-l-4 border-blue-500 flex-shrink-0">
-                        <div className="text-xs font-medium text-blue-600 uppercase">
+                      <div className="bg-blue-100 dark:bg-blue-900/30 rounded-lg px-3 py-2 border-l-4 border-blue-500 flex-shrink-0">
+                        <div className="text-xs font-medium text-blue-600 dark:text-blue-400 uppercase">
                           {format(new Date(post.publish_date), "MMM")}
                         </div>
-                        <div className="text-2xl font-bold text-blue-900">
+                        <div className="text-2xl font-bold text-blue-900 dark:text-blue-300">
                           {format(new Date(post.publish_date), "dd")}
                         </div>
-                        <div className="text-xs text-blue-600">
+                        <div className="text-xs text-blue-600 dark:text-blue-400">
                           {format(new Date(post.publish_date), "yyyy")}
                         </div>
                       </div>
@@ -314,14 +320,14 @@ const MainGrid = () => {
                       {/* Post Info */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-2">
-                          <h3 className="text-sm font-semibold text-gray-900 flex-1">
+                          <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex-1">
                             {post.title}
                           </h3>
                           <span
                             className={`px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
                               post.status === "approved"
-                                ? "bg-green-100 text-green-800"
-                                : "bg-orange-100 text-orange-800"
+                                ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                : "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200"
                             }`}
                           >
                             {post.status === "approved"
@@ -330,7 +336,7 @@ const MainGrid = () => {
                           </span>
                         </div>
                         <div className="space-y-1">
-                          <div className="text-sm text-gray-600">
+                          <div className="text-sm text-gray-600 dark:text-gray-300">
                             <span className="font-medium">Time:</span>{" "}
                             {formatTime(post)}
                           </div>
@@ -342,11 +348,11 @@ const MainGrid = () => {
                                   project?.color_code || "#3B82F6",
                               }}
                             />
-                            <span className="text-sm text-gray-700">
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
                               {project?.name || "Unknown"}
                             </span>
                           </div>
-                          <div className="text-xs text-gray-500">
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
                             By {post.created_by_user?.full_name || "Unknown"}
                           </div>
                         </div>
@@ -360,8 +366,8 @@ const MainGrid = () => {
         )}
 
         {/* Info Box */}
-        <div className="mt-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
+        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <p className="text-sm text-blue-800 dark:text-blue-300">
             <strong>Note:</strong> This is a read-only view. To edit or create
             posts, go to the specific project from the dashboard.
           </p>

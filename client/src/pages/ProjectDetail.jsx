@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { projectAPI, postAPI, contextAPI } from "../services/api";
 import { format } from "date-fns";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 const ProjectDetail = () => {
   const { contextId, projectId } = useParams();
@@ -239,7 +240,7 @@ const ProjectDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -259,19 +260,19 @@ const ProjectDetail = () => {
   const maxDateStr = maxDate.toISOString().split("T")[0];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate(`/contexts/${contextId}/dashboard`)}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 ← Back
               </button>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
                 {project.name}
                 <div
                   className="w-6 h-6 rounded-full"
@@ -279,18 +280,19 @@ const ProjectDetail = () => {
                 />
               </h1>
             </div>
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
+              <DarkModeToggle />
               {isAdmin && (
                 <button
                   onClick={() => setShowMembersModal(true)}
-                  className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                  className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
                 >
                   👥 Manage Members
                 </button>
               )}
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 + Create Post
               </button>
@@ -303,25 +305,33 @@ const ProjectDetail = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Total Posts</p>
-            <p className="text-2xl font-bold text-gray-900">{posts.length}</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Total Posts
+            </p>
+            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+              {posts.length}
+            </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Pending Approval</p>
-            <p className="text-2xl font-bold text-orange-500">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Pending Approval
+            </p>
+            <p className="text-2xl font-bold text-orange-500 dark:text-orange-400">
               {pendingPosts.length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Approved</p>
-            <p className="text-2xl font-bold text-green-500">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Approved</p>
+            <p className="text-2xl font-bold text-green-500 dark:text-green-400">
               {approvedPosts.length}
             </p>
           </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-sm text-gray-600">Team Members</p>
-            <p className="text-2xl font-bold text-blue-500">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Team Members
+            </p>
+            <p className="text-2xl font-bold text-blue-500 dark:text-blue-400">
               {projectMembers.length}
             </p>
           </div>
@@ -329,47 +339,49 @@ const ProjectDetail = () => {
 
         {/* Posts List */}
         {posts.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <p className="text-gray-500 mb-4">No posts yet</p>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8 text-center">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              No posts yet
+            </p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="text-blue-500 hover:text-blue-600 font-medium"
+              className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-medium transition-colors"
             >
               Create your first post
             </button>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
             {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
+                <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Time
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Post Title
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Status
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Created By
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                   {posts.map((post) => (
                     <tr
                       key={post.id}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -402,12 +414,12 @@ const ProjectDetail = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 dark:text-white">
                           {formatTime(post)}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-semibold text-gray-900">
+                        <div className="text-sm font-semibold text-gray-900 dark:text-white">
                           {post.title}
                         </div>
                       </td>
@@ -415,14 +427,14 @@ const ProjectDetail = () => {
                         <span
                           className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             post.status === "approved"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-orange-100 text-orange-800"
+                              ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                              : "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200"
                           }`}
                         >
                           {post.status === "approved" ? "Approved" : "Pending"}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                         {post.created_by_user?.full_name || "Unknown"}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -431,13 +443,13 @@ const ProjectDetail = () => {
                             <>
                               <button
                                 onClick={() => handleEditClick(post)}
-                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                                className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDelete(post.id)}
-                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                                className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
                               >
                                 Delete
                               </button>
@@ -447,13 +459,13 @@ const ProjectDetail = () => {
                             <>
                               <button
                                 onClick={() => handleEditClick(post)}
-                                className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                                className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDelete(post.id)}
-                                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                                className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
                               >
                                 Delete
                               </button>
@@ -462,7 +474,7 @@ const ProjectDetail = () => {
                           {post.status === "pending" && isAdmin && (
                             <button
                               onClick={() => handleApprove(post.id)}
-                              className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
+                              className="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
                             >
                               Approve
                             </button>
@@ -476,11 +488,11 @@ const ProjectDetail = () => {
             </div>
 
             {/* Mobile Cards */}
-            <div className="md:hidden divide-y divide-gray-200">
+            <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
               {posts.map((post) => (
                 <div
                   key={post.id}
-                  className="p-4 hover:bg-gray-50 transition-colors"
+                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <div className="flex gap-4">
                     {/* Date Box */}
@@ -514,25 +526,25 @@ const ProjectDetail = () => {
                     {/* Post Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="text-sm font-semibold text-gray-900 flex-1">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white flex-1">
                           {post.title}
                         </h3>
                         <span
                           className={`px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0 ${
                             post.status === "approved"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-orange-100 text-orange-800"
+                              ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                              : "bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200"
                           }`}
                         >
                           {post.status === "approved" ? "Approved" : "Pending"}
                         </span>
                       </div>
                       <div className="space-y-1 mb-3">
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600 dark:text-gray-300">
                           <span className="font-medium">Time:</span>{" "}
                           {formatTime(post)}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
                           By {post.created_by_user?.full_name || "Unknown"}
                         </div>
                       </div>
@@ -541,20 +553,20 @@ const ProjectDetail = () => {
                           <>
                             <button
                               onClick={() => handleEditClick(post)}
-                              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                              className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDelete(post.id)}
-                              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                              className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
                             >
                               Delete
                             </button>
                             {post.status === "pending" && (
                               <button
                                 onClick={() => handleApprove(post.id)}
-                                className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 text-sm"
+                                className="bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white px-3 py-1 rounded text-sm transition-colors"
                               >
                                 Approve
                               </button>
@@ -565,13 +577,13 @@ const ProjectDetail = () => {
                           <>
                             <button
                               onClick={() => handleEditClick(post)}
-                              className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                              className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDelete(post.id)}
-                              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                              className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
                             >
                               Delete
                             </button>
@@ -589,23 +601,25 @@ const ProjectDetail = () => {
 
       {/* Create Post Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Create New Post
             </h3>
 
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
-                <p className="text-red-700 text-sm">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 p-4 mb-4 rounded">
+                <p className="text-red-700 dark:text-red-300 text-sm">
+                  {error}
+                </p>
               </div>
             )}
 
             <form onSubmit={handleCreatePost}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Post Title *{" "}
-                  <span className="text-gray-500">
+                  <span className="text-gray-500 dark:text-gray-400">
                     ({formData.title.length}/200)
                   </span>
                 </label>
@@ -617,13 +631,13 @@ const ProjectDetail = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   placeholder="Launch Facebook campaign"
                 />
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Publish Date *
                 </label>
                 <input
@@ -635,12 +649,12 @@ const ProjectDetail = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, publish_date: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Publishing Time
                 </label>
                 <div className="flex gap-2 mb-3">
@@ -651,8 +665,8 @@ const ProjectDetail = () => {
                     }
                     className={`flex-1 py-2 rounded-lg transition-colors ${
                       formData.time_type === "slot"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-700"
+                        ? "bg-blue-500 dark:bg-blue-600 text-white"
+                        : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
                     }`}
                   >
                     Time Slot
@@ -664,8 +678,8 @@ const ProjectDetail = () => {
                     }
                     className={`flex-1 py-2 rounded-lg transition-colors ${
                       formData.time_type === "specific"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-700"
+                        ? "bg-blue-500 dark:bg-blue-600 text-white"
+                        : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
                     }`}
                   >
                     Specific Time
@@ -681,7 +695,7 @@ const ProjectDetail = () => {
                         publish_time_slot: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="morning">Morning (6AM - 12PM)</option>
                     <option value="noon">Noon (12PM - 6PM)</option>
@@ -697,7 +711,7 @@ const ProjectDetail = () => {
                         specific_time: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 )}
               </div>
@@ -716,14 +730,14 @@ const ProjectDetail = () => {
                     });
                     setError("");
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {creating ? "Creating..." : "Create"}
                 </button>
@@ -735,21 +749,25 @@ const ProjectDetail = () => {
 
       {/* Edit Post Modal */}
       {showEditModal && editingPost && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Edit Post</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              Edit Post
+            </h3>
 
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
-                <p className="text-red-700 text-sm">{error}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 dark:border-red-400 p-4 mb-4 rounded">
+                <p className="text-red-700 dark:text-red-300 text-sm">
+                  {error}
+                </p>
               </div>
             )}
 
             <form onSubmit={handleUpdatePost}>
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Post Title *{" "}
-                  <span className="text-gray-500">
+                  <span className="text-gray-500 dark:text-gray-400">
                     ({formData.title.length}/200)
                   </span>
                 </label>
@@ -761,13 +779,13 @@ const ProjectDetail = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                   placeholder="Launch Facebook campaign"
                 />
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Publish Date *
                 </label>
                 <input
@@ -779,12 +797,12 @@ const ProjectDetail = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, publish_date: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 />
               </div>
 
               <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Publishing Time
                 </label>
                 <div className="flex gap-2 mb-3">
@@ -795,8 +813,8 @@ const ProjectDetail = () => {
                     }
                     className={`flex-1 py-2 rounded-lg transition-colors ${
                       formData.time_type === "slot"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-700"
+                        ? "bg-blue-500 dark:bg-blue-600 text-white"
+                        : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
                     }`}
                   >
                     Time Slot
@@ -808,8 +826,8 @@ const ProjectDetail = () => {
                     }
                     className={`flex-1 py-2 rounded-lg transition-colors ${
                       formData.time_type === "specific"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-200 text-gray-700"
+                        ? "bg-blue-500 dark:bg-blue-600 text-white"
+                        : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
                     }`}
                   >
                     Specific Time
@@ -825,7 +843,7 @@ const ProjectDetail = () => {
                         publish_time_slot: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   >
                     <option value="morning">Morning (6AM - 12PM)</option>
                     <option value="noon">Noon (12PM - 6PM)</option>
@@ -841,7 +859,7 @@ const ProjectDetail = () => {
                         specific_time: e.target.value,
                       })
                     }
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 )}
               </div>
@@ -861,14 +879,14 @@ const ProjectDetail = () => {
                     });
                     setError("");
                   }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={creating}
-                  className="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {creating ? "Updating..." : "Update"}
                 </button>
@@ -880,15 +898,15 @@ const ProjectDetail = () => {
 
       {/* Manage Members Modal */}
       {showMembersModal && isAdmin && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-gray-900">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Manage Project Members
               </h3>
               <button
                 onClick={() => setShowMembersModal(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
               >
                 ✕
               </button>
@@ -896,11 +914,11 @@ const ProjectDetail = () => {
 
             {/* Current Project Members */}
             <div className="mb-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                 Current Members ({projectMembers.length})
               </h4>
               {projectMembers.length === 0 ? (
-                <p className="text-gray-500 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
                   No members assigned to this project yet.
                 </p>
               ) : (
@@ -908,13 +926,13 @@ const ProjectDetail = () => {
                   {projectMembers.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                     >
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-gray-900 dark:text-white">
                           {member.users?.full_name || "Unknown User"}
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
                           {member.users?.email || "No email"}
                         </p>
                       </div>
@@ -922,7 +940,7 @@ const ProjectDetail = () => {
                         onClick={() =>
                           handleRemoveMember(member.users?.id || member.user_id)
                         }
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-sm"
+                        className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
                       >
                         Remove
                       </button>
@@ -934,13 +952,11 @@ const ProjectDetail = () => {
 
             {/* Available Members to Add */}
             <div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                 Add Members
               </h4>
               {(() => {
                 // Filter out members already in the project
-                // contextMembers has flattened structure: { user_id, full_name, email, role }
-                // projectMembers has nested structure: { users: { id, full_name, email } }
                 const projectMemberIds = projectMembers.map(
                   (pm) => pm.users?.id || pm.user_id
                 );
@@ -950,7 +966,7 @@ const ProjectDetail = () => {
 
                 if (availableMembers.length === 0) {
                   return (
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">
                       All context members are already assigned to this project.
                     </p>
                   );
@@ -961,22 +977,22 @@ const ProjectDetail = () => {
                     {availableMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="flex items-center justify-between p-3 bg-blue-50 rounded-lg"
+                        className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
                       >
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-gray-900 dark:text-white">
                             {member.full_name}
                           </p>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
                             {member.email}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-gray-500">
                             Role: {member.role}
                           </p>
                         </div>
                         <button
                           onClick={() => handleAddMember(member.user_id)}
-                          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm"
+                          className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
                         >
                           Add
                         </button>
@@ -990,7 +1006,7 @@ const ProjectDetail = () => {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setShowMembersModal(false)}
-                className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+                className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 Done
               </button>
