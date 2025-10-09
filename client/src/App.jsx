@@ -14,6 +14,7 @@ import ContextDashboard from "./pages/ContextDashboard";
 import ProjectDetail from "./pages/ProjectDetail";
 import MainGrid from "./pages/MainGrid";
 import JoinContext from "./pages/JoinContext";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/join/:code" element={<JoinContext />} />
+            <Route path="/about" element={<About />} />
 
             {/* Protected Routes */}
             <Route
@@ -70,10 +72,10 @@ function App() {
             />
 
             {/* Default Route */}
-            <Route path="/" element={<Navigate to="/contexts" replace />} />
+            <Route path="/" element={<Navigate to="/about" replace />} />
 
             {/* 404 */}
-            <Route path="*" element={<Navigate to="/contexts" replace />} />
+            <Route path="*" element={<Navigate to="/about" replace />} />
           </Routes>
         </AuthProvider>
       </DarkModeProvider>

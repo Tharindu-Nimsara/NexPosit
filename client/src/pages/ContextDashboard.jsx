@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { contextAPI, projectAPI, postAPI } from "../services/api";
 import { format } from "date-fns";
 import DarkModeToggle from "../components/DarkModeToggle";
+import Logo from "../components/Logo";
 
 const PRESET_COLORS = [
   { name: "Blue", value: "#3B82F6" },
@@ -198,6 +199,7 @@ const ContextDashboard = () => {
               >
                 ← Back
               </button>
+              <Logo size="small" />
               <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                 {context.name}
               </h1>

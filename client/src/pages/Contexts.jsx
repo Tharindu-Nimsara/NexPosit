@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { contextAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import DarkModeToggle from "../components/DarkModeToggle";
+import Logo from "../components/Logo";
 
 const Contexts = () => {
   const [contexts, setContexts] = useState([]);
@@ -71,10 +72,14 @@ const Contexts = () => {
       <header className="bg-white dark:bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Social Post Planner
-            </h1>
+            <Logo size="small" />
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate("/about")}
+                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+              >
+                About
+              </button>
               <DarkModeToggle />
               <button
                 onClick={logout}
