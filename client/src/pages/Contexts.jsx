@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import DarkModeToggle from "../components/DarkModeToggle";
 import Logo from "../components/Logo";
 
+
 const Contexts = () => {
   const [contexts, setContexts] = useState([]);
   const [loading, setLoading] = useState(true);

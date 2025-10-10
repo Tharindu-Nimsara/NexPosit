@@ -15,6 +15,7 @@ import ProjectDetail from "./pages/ProjectDetail";
 import MainGrid from "./pages/MainGrid";
 import JoinContext from "./pages/JoinContext";
 import About from "./pages/About";
+import PublicContextDashboard from "./pages/PublicContextDashboard";
 
 function App() {
   return (
@@ -27,6 +28,12 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/join/:code" element={<JoinContext />} />
             <Route path="/about" element={<About />} />
+
+            {/* Public Dashboard - No auth required */}
+            <Route
+              path="/public/:contextId/dashboard"
+              element={<PublicContextDashboard />}
+            />
 
             {/* Protected Routes */}
             <Route

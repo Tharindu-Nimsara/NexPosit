@@ -4,6 +4,7 @@ import { contextAPI, projectAPI, postAPI } from "../services/api";
 import { format } from "date-fns";
 import DarkModeToggle from "../components/DarkModeToggle";
 import Logo from "../components/Logo";
+import ShareDashboardButton from "../components/ShareDashboardButton";
 
 const PRESET_COLORS = [
   { name: "Blue", value: "#3B82F6" },
@@ -200,9 +201,7 @@ const ContextDashboard = () => {
                 ← Back
               </button>
               <Logo size="small" />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                {context.name}
-              </h1>
+
               <span
                 className={`px-3 py-1 text-sm rounded-full ${
                   isAdmin
@@ -230,37 +229,24 @@ const ContextDashboard = () => {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Context Info & Invite */}
+        {/* Context Name and Share */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
-          {context.description && (
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              {context.description}
-            </p>
-          )}
-
-          {isAdmin && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Invite Code
-                  </p>
-                  <p className="text-2xl font-mono font-bold text-blue-600 dark:text-blue-400">
-                    {context.invite_code}
-                  </p>
-                </div>
-                <button
-                  onClick={copyInviteLink}
-                  className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  {copied ? "✓ Copied!" : "Copy Link"}
-                </button>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                Share this link with team members to invite them
-              </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {context.name}
+              </h1>
+              {context.description && (
+                <p className="text-gray-600 dark:text-gray-300 mb-4">
+                  {context.description}
+                </p>
+              )}
             </div>
-          )}
+            <ShareDashboardButton
+              contextId={contextId}
+              contextName={context.name}
+            />
+          </div>
         </div>
 
         {/* Projects Section */}
@@ -340,7 +326,7 @@ const ContextDashboard = () => {
               onClick={() => navigate(`/contexts/${contextId}/grid`)}
               className="text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 font-medium text-sm transition-colors"
             >
-              Show More →
+              Show More Days →
             </button>
           </div>
 
@@ -541,6 +527,38 @@ const ContextDashboard = () => {
                   );
                 })}
               </div>
+            </div>
+          )}
+        </div>
+        {/* Context Info & Invite */}
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6">
+          {context.description && (
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              {context.description}
+            </p>
+          )}
+
+          {isAdmin && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Invite Code
+                  </p>
+                  <p className="text-2xl font-mono font-bold text-blue-600 dark:text-blue-400">
+                    {context.invite_code}
+                  </p>
+                </div>
+                <button
+                  onClick={copyInviteLink}
+                  className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  {copied ? "✓ Copied!" : "Copy Link"}
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                Share this link with team members to invite them
+              </p>
             </div>
           )}
         </div>

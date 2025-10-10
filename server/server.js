@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.routes.js";
 import contextRoutes from "./routes/context.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import postRoutes from "./routes/post.routes.js";
+import publicRoutes from "./routes/public.routes.js";
 
 // Load environment variables
 dotenv.config();
@@ -13,15 +14,33 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// ===== MIDDLEWARE (Order matters!) =====
+
+// 1. CORS - MUST come first, before any routes
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: process.env.CLIENT_URL
+      ? [
+          process.env.CLIENT_URL,
+          "http://localhost:5173",
+          "http://localhost:5174",
+        ]
+      : [
+          "http://localhost:5173",
+          "http://localhost:5174",
+          "http://localhost:3000",
+        ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// 2. Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ===== ROUTES =====
 
 // Basic route for testing
 app.get("/", (req, res) => {
@@ -42,7 +61,10 @@ app.get("/api/health", async (req, res) => {
   });
 });
 
-// API Routes
+// Public routes (no authentication required)
+app.use("/api/public", publicRoutes);
+
+// Protected API Routes (authentication required)
 app.use("/api/auth", authRoutes);
 app.use("/api/contexts", contextRoutes);
 app.use("/api", projectRoutes);
