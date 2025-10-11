@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { postAPI, projectAPI, contextAPI } from "../services/api";
 import { format } from "date-fns";
 import DarkModeToggle from "../components/DarkModeToggle";
+import ProfileIcon from "../components/ProfileIcon";
 
 const MainGrid = () => {
   const { contextId } = useParams();
@@ -89,7 +90,14 @@ const MainGrid = () => {
                 </p>
               </div>
             </div>
-            <DarkModeToggle />
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <DarkModeToggle />
+              </div>
+              <div>
+                <ProfileIcon size="md" />
+              </div>
+            </div>
           </div>
         </div>
       </header>

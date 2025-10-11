@@ -4,7 +4,7 @@ import { contextAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import DarkModeToggle from "../components/DarkModeToggle";
 import Logo from "../components/Logo";
-
+import ProfileIcon from "../components/ProfileIcon";
 
 const Contexts = () => {
   const [contexts, setContexts] = useState([]);
@@ -82,6 +82,7 @@ const Contexts = () => {
                 About
               </button>
               <DarkModeToggle />
+              <ProfileIcon size="md" />
               <button
                 onClick={logout}
                 className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"

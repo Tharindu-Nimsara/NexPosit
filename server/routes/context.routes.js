@@ -22,7 +22,7 @@ router.get("/", getUserContextsList); // Get user's contexts
 router.get("/:id", getContext); // Get single context
 router.post("/join/:code", joinContext); // Join via invite code
 router.get("/:id/members", getMembers); // Get context members
-router.patch("/:id/members/:userId", updateMemberRole); // Update member role
+router.patch("/:id/members/:userId/role", updateMemberRole); // Update member role - ADD /role HERE
 router.delete("/:id/members/:userId", removeMember); // Remove member
 router.post("/:id/regenerate-invite", regenerateCode); // Regenerate invite code
 

@@ -1,10 +1,11 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const BASE_URL = `${API_URL}/api`; // Add /api here
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: BASE_URL, // Use the BASE_URL with /api
   headers: {
     "Content-Type": "application/json",
   },
@@ -73,19 +74,19 @@ export const contextAPI = {
     return response.data;
   },
 
-  join: async (inviteCode) => {
-    const response = await api.post(`/contexts/join/${inviteCode}`);
+  join: async (code) => {
+    const response = await api.post(`/contexts/join/${code}`);
     return response.data;
   },
 
-  getMembers: async (id) => {
-    const response = await api.get(`/contexts/${id}/members`);
+  getMembers: async (contextId) => {
+    const response = await api.get(`/contexts/${contextId}/members`);
     return response.data;
   },
 
   updateMemberRole: async (contextId, userId, role) => {
     const response = await api.patch(
-      `/contexts/${contextId}/members/${userId}`,
+      `/contexts/${contextId}/members/${userId}/role`,
       { role }
     );
     return response.data;
@@ -98,8 +99,8 @@ export const contextAPI = {
     return response.data;
   },
 
-  regenerateInviteCode: async (id) => {
-    const response = await api.post(`/contexts/${id}/regenerate-invite`);
+  regenerateInviteCode: async (contextId) => {
+    const response = await api.post(`/contexts/${contextId}/regenerate-invite`);
     return response.data;
   },
 };
@@ -119,37 +120,40 @@ export const projectAPI = {
     return response.data;
   },
 
-  getById: async (id) => {
-    const response = await api.get(`/projects/${id}`);
+  getById: async (projectId) => {
+    const response = await api.get(`/projects/${projectId}`);
     return response.data;
   },
 
-  update: async (id, projectData) => {
-    const response = await api.patch(`/projects/${id}`, projectData);
+  update: async (projectId, projectData) => {
+    const response = await api.patch(`/projects/${projectId}`, projectData);
     return response.data;
   },
 
-  delete: async (id) => {
-    const response = await api.delete(`/projects/${id}`);
+  delete: async (projectId) => {
+    const response = await api.delete(`/projects/${projectId}`);
     return response.data;
   },
 
+  // ADD THIS FUNCTION
+  getMembers: async (projectId) => {
+    const response = await api.get(`/projects/${projectId}/members`);
+    return response.data;
+  },
+
+  // ADD THIS FUNCTION (if needed for adding members)
   addMember: async (projectId, userId) => {
     const response = await api.post(`/projects/${projectId}/members`, {
-      user_id: userId,
+      userId,
     });
     return response.data;
   },
 
+  // ADD THIS FUNCTION (if needed for removing members)
   removeMember: async (projectId, userId) => {
     const response = await api.delete(
       `/projects/${projectId}/members/${userId}`
     );
-    return response.data;
-  },
-
-  getMembers: async (projectId) => {
-    const response = await api.get(`/projects/${projectId}/members`);
     return response.data;
   },
 };
@@ -161,33 +165,46 @@ export const postAPI = {
     return response.data;
   },
 
-  getByContext: async (contextId) => {
-    const response = await api.get(`/contexts/${contextId}/posts`);
-    return response.data;
-  },
-
   getByProject: async (projectId) => {
     const response = await api.get(`/projects/${projectId}/posts`);
     return response.data;
   },
 
-  getById: async (id) => {
-    const response = await api.get(`/posts/${id}`);
+  getByContext: async (contextId) => {
+    const response = await api.get(`/contexts/${contextId}/posts`);
     return response.data;
   },
 
-  update: async (id, postData) => {
-    const response = await api.patch(`/posts/${id}`, postData);
+  update: async (postId, postData) => {
+    const response = await api.patch(`/posts/${postId}`, postData);
     return response.data;
   },
 
-  delete: async (id) => {
-    const response = await api.delete(`/posts/${id}`);
+  delete: async (postId) => {
+    const response = await api.delete(`/posts/${postId}`);
+    return response.data;
+  },
+};
+
+// Public API calls (no auth required)
+export const publicAPI = {
+  getDashboard: async (contextId) => {
+    const response = await api.get(`/public/${contextId}/dashboard`);
     return response.data;
   },
 
-  approve: async (id) => {
-    const response = await api.patch(`/posts/${id}/approve`);
+  getContext: async (contextId) => {
+    const response = await api.get(`/public/contexts/${contextId}`);
+    return response.data;
+  },
+
+  getProjects: async (contextId) => {
+    const response = await api.get(`/public/contexts/${contextId}/projects`);
+    return response.data;
+  },
+
+  getPosts: async (contextId) => {
+    const response = await api.get(`/public/contexts/${contextId}/posts`);
     return response.data;
   },
 };

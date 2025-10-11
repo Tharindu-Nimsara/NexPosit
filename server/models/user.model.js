@@ -1,11 +1,14 @@
 import { supabase } from "../utils/supabase.js";
 
-// Create new user
+// Create new user (supports both email/password and Google users)
 export const createUser = async (
   email,
   passwordHash,
   fullName,
-  timezone = "UTC"
+  timezone = "UTC",
+  isGoogleUser = false,
+  googleId = null,
+  profilePicture = null // Add this parameter
 ) => {
   const { data, error } = await supabase
     .from("users")
@@ -15,6 +18,9 @@ export const createUser = async (
         password_hash: passwordHash,
         full_name: fullName,
         timezone: timezone,
+        is_google_user: isGoogleUser,
+        google_id: googleId,
+        profile_picture: profilePicture, // Add this field
       },
     ])
     .select()
@@ -44,11 +50,29 @@ export const findUserByEmail = async (email) => {
 export const findUserById = async (userId) => {
   const { data, error } = await supabase
     .from("users")
-    .select("id, email, full_name, timezone, created_at")
+    .select(
+      "id, email, full_name, timezone, created_at, is_google_user, profile_picture"
+    ) // Add profile_picture
     .eq("id", userId)
     .single();
 
   if (error) throw error;
+  return data;
+};
+
+// Find user by Google ID
+export const findUserByGoogleId = async (googleId) => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("google_id", googleId)
+    .single();
+
+  if (error && error.code !== "PGRST116") {
+    // PGRST116 = no rows found
+    throw error;
+  }
+
   return data;
 };
 

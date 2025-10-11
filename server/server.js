@@ -1,8 +1,11 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import passport from "passport";
+import "./config/passport.js"; // Import passport configuration
 import { testConnection } from "./utils/supabase.js";
 import authRoutes from "./routes/auth.routes.js";
+import googleAuthRoutes from "./routes/google-auth.routes.js"; // Add Google auth routes
 import contextRoutes from "./routes/context.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import postRoutes from "./routes/post.routes.js";
@@ -40,6 +43,9 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// 3. Initialize Passport (for Google OAuth)
+app.use(passport.initialize());
+
 // ===== ROUTES =====
 
 // Basic route for testing
@@ -64,8 +70,11 @@ app.get("/api/health", async (req, res) => {
 // Public routes (no authentication required)
 app.use("/api/public", publicRoutes);
 
-// Protected API Routes (authentication required)
+// Authentication routes
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", googleAuthRoutes); // Add Google OAuth routes
+
+// Protected API Routes (authentication required)
 app.use("/api/contexts", contextRoutes);
 app.use("/api", projectRoutes);
 app.use("/api", postRoutes);
@@ -91,5 +100,10 @@ app.use((err, req, res, next) => {
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(
+    `🔐 Google OAuth: ${
+      process.env.GOOGLE_CLIENT_ID ? "Configured" : "Not configured"
+    }`
+  );
   await testConnection();
 });

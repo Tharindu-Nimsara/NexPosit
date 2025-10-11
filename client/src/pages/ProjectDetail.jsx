@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { projectAPI, postAPI, contextAPI } from "../services/api";
 import { format } from "date-fns";
 import DarkModeToggle from "../components/DarkModeToggle";
+import ProfileIcon from "../components/ProfileIcon";
 
 const ProjectDetail = () => {
   const { contextId, projectId } = useParams();
@@ -345,6 +346,7 @@ const ProjectDetail = () => {
             </div>
             <div className="flex items-center gap-3">
               <DarkModeToggle />
+              <ProfileIcon size="md" />
               {isAdmin && (
                 <>
                   <button

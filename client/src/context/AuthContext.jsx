@@ -23,13 +23,18 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       const savedUser = localStorage.getItem("user");
 
-      if (token && savedUser) {
-        try {
-          setUser(JSON.parse(savedUser));
-        } catch (err) {
-          console.error("Error parsing user data:", err);
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
+      if (token) {
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser));
+          } catch (err) {
+            console.error("Error parsing user data:", err);
+            // If saved user is corrupted, fetch from API
+            await fetchUserData();
+          }
+        } else {
+          // Token exists but no saved user - fetch from API
+          await fetchUserData();
         }
       }
       setLoading(false);
@@ -38,6 +43,49 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  // Fetch user data from API using token
+  const fetchUserData = async () => {
+    try {
+      const response = await authAPI.getMe();
+      if (response.success) {
+        const userData = response.data.user;
+        localStorage.setItem("user", JSON.stringify(userData));
+        setUser(userData);
+        return { success: true, user: userData };
+      }
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      // If token is invalid, clear everything
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      return { success: false, error: "Invalid token" };
+    }
+  };
+
+  // Handle OAuth callback (when user returns from Google)
+  const handleOAuthCallback = async (token) => {
+    try {
+      setError(null);
+      setLoading(true);
+
+      // Store the token
+      localStorage.setItem("token", token);
+
+      // Fetch user data from API
+      const result = await fetchUserData();
+
+      setLoading(false);
+      return result;
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || "Authentication failed";
+      setError(errorMessage);
+      setLoading(false);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  // Register new user
   const register = async (userData) => {
     try {
       setError(null);
@@ -57,6 +105,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Login user
   const login = async (credentials) => {
     try {
       setError(null);
@@ -76,11 +125,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Logout user
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
     window.location.href = "/login";
+  };
+
+  // Refresh user data
+  const refreshUser = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      return await fetchUserData();
+    }
+    return { success: false, error: "No token found" };
   };
 
   const value = {
@@ -90,6 +149,8 @@ export const AuthProvider = ({ children }) => {
     register,
     login,
     logout,
+    handleOAuthCallback,
+    refreshUser,
     isAuthenticated: !!user,
   };
 

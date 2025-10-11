@@ -4,6 +4,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import AuthCallback from "./pages/AuthCallback";
 import { AuthProvider } from "./context/AuthContext";
 import { DarkModeProvider } from "./context/DarkModeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -28,6 +29,9 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/join/:code" element={<JoinContext />} />
             <Route path="/about" element={<About />} />
+
+            {/* For Google Auth */}
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Public Dashboard - No auth required */}
             <Route

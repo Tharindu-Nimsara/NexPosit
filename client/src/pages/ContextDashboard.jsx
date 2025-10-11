@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import DarkModeToggle from "../components/DarkModeToggle";
 import Logo from "../components/Logo";
 import ShareDashboardButton from "../components/ShareDashboardButton";
+import ProfileIcon from "../components/ProfileIcon";
 
 const PRESET_COLORS = [
   { name: "Blue", value: "#3B82F6" },
@@ -214,6 +215,7 @@ const ContextDashboard = () => {
             </div>
             <div className="flex items-center gap-3">
               <DarkModeToggle />
+              <ProfileIcon size="md" />
               {isAdmin && (
                 <button
                   onClick={() => setShowMembersModal(true)}
