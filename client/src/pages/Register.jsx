@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
 import DarkModeToggle from "../components/DarkModeToggle";
 import GoogleSignInButton from "../components/GoogleSignInButton";
+import { contextAPI } from "../services/api";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -42,7 +43,26 @@ const Register = () => {
 
     try {
       await register(formData);
-      navigate("/contexts");
+
+      // Check for pending context join
+      const pendingContextJoin = sessionStorage.getItem("pendingContextJoin");
+      const pendingInviteCode = sessionStorage.getItem("pendingInviteCode");
+
+      if (pendingContextJoin) {
+        sessionStorage.removeItem("pendingContextJoin");
+        try {
+          await contextAPI.joinById(pendingContextJoin);
+          navigate(`/contexts/${pendingContextJoin}/dashboard`);
+        } catch (err) {
+          console.error("Failed to join context:", err);
+          navigate("/contexts");
+        }
+      } else if (pendingInviteCode) {
+        sessionStorage.removeItem("pendingInviteCode");
+        navigate(`/join/${pendingInviteCode}`);
+      } else {
+        navigate("/contexts");
+      }
     } catch (err) {
       setError(err.response?.data?.error || "Failed to register");
     } finally {

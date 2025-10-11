@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { contextAPI } from "../services/api";
 
 const AuthCallback = () => {
   const [searchParams] = useSearchParams();
@@ -14,7 +15,6 @@ const AuthCallback = () => {
       const token = searchParams.get("token");
       const errorParam = searchParams.get("error");
 
-      // Handle error from backend
       if (errorParam) {
         let errorMessage = "Authentication failed";
         if (errorParam === "google_auth_failed") {
@@ -25,14 +25,12 @@ const AuthCallback = () => {
         setError(errorMessage);
         setProcessing(false);
 
-        // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate("/login?error=" + errorParam);
         }, 3000);
         return;
       }
 
-      // Handle successful authentication
       if (token) {
         try {
           const result = await handleOAuthCallback(token);
@@ -40,12 +38,25 @@ const AuthCallback = () => {
           if (result.success) {
             setProcessing(false);
 
-            // Small delay to show success state
-            setTimeout(() => {
+            setTimeout(async () => {
+              // Check for pending context join (from public dashboard)
+              const pendingContextJoin =
+                sessionStorage.getItem("pendingContextJoin");
+
               // Check for pending invite code
               const pendingInviteCode =
                 sessionStorage.getItem("pendingInviteCode");
-              if (pendingInviteCode) {
+
+              if (pendingContextJoin) {
+                sessionStorage.removeItem("pendingContextJoin");
+                try {
+                  await contextAPI.joinById(pendingContextJoin);
+                  navigate(`/contexts/${pendingContextJoin}/dashboard`);
+                } catch (err) {
+                  console.error("Failed to join context:", err);
+                  navigate("/contexts");
+                }
+              } else if (pendingInviteCode) {
                 sessionStorage.removeItem("pendingInviteCode");
                 navigate(`/join/${pendingInviteCode}`);
               } else {
@@ -56,7 +67,6 @@ const AuthCallback = () => {
             setError(result.error || "Authentication failed");
             setProcessing(false);
 
-            // Redirect to login after 3 seconds
             setTimeout(() => {
               navigate("/login?error=auth_failed");
             }, 3000);
@@ -66,17 +76,14 @@ const AuthCallback = () => {
           setError("An unexpected error occurred. Please try again.");
           setProcessing(false);
 
-          // Redirect to login after 3 seconds
           setTimeout(() => {
             navigate("/login?error=auth_failed");
           }, 3000);
         }
       } else {
-        // No token and no error - something went wrong
         setError("Invalid authentication response. Please try again.");
         setProcessing(false);
 
-        // Redirect to login after 3 seconds
         setTimeout(() => {
           navigate("/login");
         }, 3000);
@@ -90,7 +97,6 @@ const AuthCallback = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center px-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md w-full">
         {error ? (
-          // Error State
           <div className="text-center">
             <div className="text-6xl mb-4">❌</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">
@@ -103,7 +109,6 @@ const AuthCallback = () => {
             </div>
           </div>
         ) : processing ? (
-          // Processing State
           <div className="text-center">
             <div className="flex justify-center mb-4">
               <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-500"></div>
@@ -116,7 +121,6 @@ const AuthCallback = () => {
             </p>
           </div>
         ) : (
-          // Success State
           <div className="text-center">
             <div className="text-6xl mb-4">✅</div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">

@@ -74,13 +74,19 @@ export const contextAPI = {
     return response.data;
   },
 
-  join: async (code) => {
-    const response = await api.post(`/contexts/join/${code}`);
+  join: async (inviteCode) => {
+    const response = await api.post(`/contexts/join/${inviteCode}`);
     return response.data;
   },
 
-  getMembers: async (contextId) => {
-    const response = await api.get(`/contexts/${contextId}/members`);
+  // Add this new function
+  joinById: async (contextId) => {
+    const response = await api.post(`/contexts/${contextId}/join`);
+    return response.data;
+  },
+
+  getMembers: async (id) => {
+    const response = await api.get(`/contexts/${id}/members`);
     return response.data;
   },
 
@@ -99,8 +105,8 @@ export const contextAPI = {
     return response.data;
   },
 
-  regenerateInviteCode: async (contextId) => {
-    const response = await api.post(`/contexts/${contextId}/regenerate-invite`);
+  regenerateInviteCode: async (id) => {
+    const response = await api.post(`/contexts/${id}/regenerate-invite`);
     return response.data;
   },
 };

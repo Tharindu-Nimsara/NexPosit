@@ -85,10 +85,14 @@ const PublicContextDashboard = () => {
   };
 
   const handleSignup = () => {
+    // Save context ID to session storage for auto-join after signup
+    sessionStorage.setItem("pendingContextJoin", contextId);
     navigate("/register");
   };
 
   const handleLogin = () => {
+    // Save context ID to session storage for auto-join after login
+    sessionStorage.setItem("pendingContextJoin", contextId);
     navigate("/login");
   };
 

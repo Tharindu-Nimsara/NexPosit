@@ -326,3 +326,49 @@ export const regenerateCode = async (req, res) => {
     });
   }
 };
+
+
+export const joinContextById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    // Check if context exists
+    const context = await getContextById(id);
+    if (!context) {
+      return res.status(404).json({
+        success: false,
+        error: "Organization not found",
+      });
+    }
+
+    // Check if already a member
+    const existingMembership = await isContextMember(id, userId);
+    if (existingMembership) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          context,
+          message: "You are already a member of this organization",
+        },
+      });
+    }
+
+    // Add as member
+    await addContextMember(id, userId, "member");
+
+    res.json({
+      success: true,
+      data: {
+        context,
+        message: "Successfully joined organization",
+      },
+    });
+  } catch (error) {
+    console.error("Join context by ID error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to join organization",
+    });
+  }
+};
