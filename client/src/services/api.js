@@ -144,7 +144,7 @@ export const projectAPI = {
   // ADD THIS FUNCTION (if needed for adding members)
   addMember: async (projectId, userId) => {
     const response = await api.post(`/projects/${projectId}/members`, {
-      userId,
+      user_id: userId, // Changed from userId to user_id
     });
     return response.data;
   },
