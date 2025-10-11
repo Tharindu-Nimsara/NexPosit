@@ -190,6 +190,10 @@ export const postAPI = {
     const response = await api.delete(`/posts/${postId}`);
     return response.data;
   },
+  approve: async (postId) => {
+    const response = await api.patch(`/posts/${postId}/approve`);
+    return response.data;
+  },
 };
 
 // Public API calls (no auth required)
