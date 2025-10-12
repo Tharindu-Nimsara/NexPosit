@@ -10,6 +10,7 @@ import contextRoutes from "./routes/context.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import publicRoutes from "./routes/public.routes.js";
+import passwordResetRoutes from "./routes/passwordReset.routes.js"; 
 
 // Load environment variables
 dotenv.config();
@@ -72,7 +73,9 @@ app.use("/api/public", publicRoutes);
 
 // Authentication routes
 app.use("/api/auth", authRoutes);
-app.use("/api/auth", googleAuthRoutes); // Add Google OAuth routes
+app.use("/api/auth", googleAuthRoutes); // Google OAuth routes
+
+app.use("/api/auth", passwordResetRoutes); //password reset
 
 // Protected API Routes (authentication required)
 app.use("/api/contexts", contextRoutes);

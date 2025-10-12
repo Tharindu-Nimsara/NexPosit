@@ -152,6 +152,18 @@ const Login = () => {
               />
             </div>
 
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                {/* You can add "Remember me" checkbox here if you want */}
+              </div>
+              <Link
+                to="/forgot-password"
+                className="text-sm text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors"
+              >
+                Forgot password?
+              </Link>
+            </div>
+
             <button
               type="submit"
               disabled={loading}

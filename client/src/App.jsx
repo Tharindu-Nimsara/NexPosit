@@ -17,6 +17,8 @@ import MainGrid from "./pages/MainGrid";
 import JoinContext from "./pages/JoinContext";
 import About from "./pages/About";
 import PublicContextDashboard from "./pages/PublicContextDashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/join/:code" element={<JoinContext />} />
             <Route path="/about" element={<About />} />
 

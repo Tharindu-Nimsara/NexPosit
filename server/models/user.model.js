@@ -81,3 +81,65 @@ export const emailExists = async (email) => {
   const user = await findUserByEmail(email);
   return !!user;
 };
+
+// Set password reset token
+export const setPasswordResetToken = async (userId, token, expires) => {
+  const { data, error } = await supabase
+    .from("users")
+    .update({
+      password_reset_token: token,
+      password_reset_expires: expires,
+    })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Find user by reset token
+export const findUserByResetToken = async (token) => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("password_reset_token", token)
+    .single();
+
+  if (error && error.code !== "PGRST116") {
+    throw error;
+  }
+
+  return data;
+};
+
+// Clear password reset token
+export const clearPasswordResetToken = async (userId) => {
+  const { data, error } = await supabase
+    .from("users")
+    .update({
+      password_reset_token: null,
+      password_reset_expires: null,
+    })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+// Update password
+export const updatePassword = async (userId, passwordHash) => {
+  const { data, error } = await supabase
+    .from("users")
+    .update({
+      password_hash: passwordHash,
+    })
+    .eq("id", userId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
