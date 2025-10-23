@@ -441,7 +441,7 @@ const ProjectDetail = () => {
                   onClick={() => setShowCreateModal(true)}
                   className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
                 >
-                  +  Create New Post
+                  + Create New Post
                 </button>
               </div>
             </div>
@@ -704,7 +704,7 @@ const ProjectDetail = () => {
       {/* Edit Project Modal */}
       {showEditProjectModal && isAdmin && (
         <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
               Edit Project
             </h3>
@@ -1143,7 +1143,7 @@ const ProjectDetail = () => {
       {/* Manage Members Modal */}
       {showMembersModal && isAdmin && (
         <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-2xl w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Manage Project Members
@@ -1151,6 +1151,7 @@ const ProjectDetail = () => {
               <button
                 onClick={() => setShowMembersModal(false)}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                aria-label="Close members modal"
               >
                 ✕
               </button>
@@ -1166,17 +1167,17 @@ const ProjectDetail = () => {
                   No members assigned to this project yet.
                 </p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {projectMembers.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
                     >
-                      <div>
-                        <p className="font-medium text-gray-900 dark:text-white">
+                      <div className="min-w-0 mb-3 sm:mb-0">
+                        <p className="font-medium text-gray-900 dark:text-white truncate">
                           {member.users?.full_name || "Unknown User"}
                         </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                           {member.users?.email || "No email"}
                         </p>
                       </div>
@@ -1184,7 +1185,7 @@ const ProjectDetail = () => {
                         onClick={() =>
                           handleRemoveMember(member.users?.id || member.user_id)
                         }
-                        className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                        className="w-full sm:w-auto bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-3 py-2 rounded text-sm transition-colors"
                       >
                         Remove
                       </button>
@@ -1217,17 +1218,17 @@ const ProjectDetail = () => {
                 }
 
                 return (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {availableMembers.map((member) => (
                       <div
                         key={member.id}
-                        className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
                       >
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-white">
+                        <div className="min-w-0 mb-3 sm:mb-0">
+                          <p className="font-medium text-gray-900 dark:text-white truncate">
                             {member.full_name}
                           </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                          <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
                             {member.email}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-500">
@@ -1236,7 +1237,7 @@ const ProjectDetail = () => {
                         </div>
                         <button
                           onClick={() => handleAddMember(member.user_id)}
-                          className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors"
+                          className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-3 py-2 rounded text-sm transition-colors"
                         >
                           Add
                         </button>
@@ -1247,10 +1248,10 @@ const ProjectDetail = () => {
               })()}
             </div>
 
-            <div className="mt-6 flex justify-end">
+            <div className="mt-6 flex flex-col sm:flex-row sm:justify-end gap-2">
               <button
                 onClick={() => setShowMembersModal(false)}
-                className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
               >
                 Done
               </button>
