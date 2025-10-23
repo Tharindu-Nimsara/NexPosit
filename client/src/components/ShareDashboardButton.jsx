@@ -50,14 +50,15 @@ const ShareDashboardButton = ({ contextId, contextName }) => {
       {/* Share Modal */}
       {showShareModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-6">
-            <div className="flex justify-between items-center mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-lg w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                 Share Dashboard
               </h3>
               <button
                 onClick={() => setShowShareModal(false)}
                 className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                aria-label="Close share modal"
               >
                 <svg
                   className="w-6 h-6"
@@ -75,27 +76,28 @@ const ShareDashboardButton = ({ contextId, contextName }) => {
               </button>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-4">
               <p className="text-gray-600 dark:text-gray-400 mb-4">
                 Share this dashboard with your team or clients. They can view
                 your content plan without signing up!
               </p>
 
               {/* Public URL */}
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Public Link
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch gap-2">
                   <input
                     type="text"
                     readOnly
                     value={publicUrl}
-                    className="flex-1 px-3 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded text-sm text-gray-900 dark:text-white"
+                    className="w-full px-3 py-2 bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded text-sm text-gray-900 dark:text-white truncate"
+                    aria-label="Public dashboard link"
                   />
                   <button
                     onClick={copyToClipboard}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded transition-colors whitespace-nowrap"
+                    className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded transition-colors whitespace-nowrap"
                   >
                     {copied ? "✓ Copied!" : "Copy"}
                   </button>
@@ -103,13 +105,13 @@ const ShareDashboardButton = ({ contextId, contextName }) => {
               </div>
 
               {/* Share Options */}
-              <div className="grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* WhatsApp */}
                 <a
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg transition-colors font-medium"
+                  className="flex items-center justify-center gap-3 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg transition-colors font-medium w-full"
                 >
                   <svg
                     className="w-6 h-6"
@@ -124,7 +126,7 @@ const ShareDashboardButton = ({ contextId, contextName }) => {
                 {/* Email */}
                 <button
                   onClick={shareViaEmail}
-                  className="flex items-center justify-center gap-3 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition-colors font-medium"
+                  className="flex items-center justify-center gap-3 bg-gray-600 hover:bg-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition-colors font-medium w-full"
                 >
                   <svg
                     className="w-6 h-6"
@@ -145,7 +147,7 @@ const ShareDashboardButton = ({ contextId, contextName }) => {
             </div>
 
             {/* Info Box */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
               <div className="flex gap-3">
                 <svg
                   className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5"
