@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { contextAPI, projectAPI, postAPI } from "../services/api";
 import { format } from "date-fns";
@@ -36,11 +36,7 @@ const ContextDashboard = () => {
   // Get current user from localStorage
   const user = JSON.parse(localStorage.getItem("user"));
 
-  useEffect(() => {
-    fetchContextData();
-  }, [contextId]);
-
-  const fetchContextData = async () => {
+  const fetchContextData = useCallback(async () => {
     try {
       const [contextRes, projectsRes, membersRes, postsRes] = await Promise.all(
         [
@@ -63,7 +59,11 @@ const ContextDashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [contextId, navigate]);
+
+  useEffect(() => {
+    fetchContextData();
+  }, [fetchContextData]);
 
   const handleCreateProject = async (e) => {
     e.preventDefault();
@@ -216,14 +216,6 @@ const ContextDashboard = () => {
             <div className="flex items-center gap-3">
               <DarkModeToggle />
               <ProfileIcon size="md" />
-              {isAdmin && (
-                <button
-                  onClick={() => setShowMembersModal(true)}
-                  className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
-                >
-                  👥 Manage Members ({members.length})
-                </button>
-              )}
             </div>
           </div>
         </div>
@@ -264,6 +256,14 @@ const ContextDashboard = () => {
               >
                 📅 View All Posts
               </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setShowMembersModal(true)}
+                  className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+                >
+                  👥 Manage Members ({members.length})
+                </button>
+              )}
               {isAdmin && (
                 <button
                   onClick={() => setShowCreateModal(true)}
@@ -677,10 +677,10 @@ const ContextDashboard = () => {
               </div>
             </div>
 
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4 sm:mb-6">
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 sm:p-4">
                   <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {members.length}
                   </div>
@@ -688,7 +688,7 @@ const ContextDashboard = () => {
                     Total Members
                   </div>
                 </div>
-                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4">
+                <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 sm:p-4">
                   <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {adminCount}
                   </div>
@@ -696,7 +696,7 @@ const ContextDashboard = () => {
                     Admins
                   </div>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4">
                   <div className="text-2xl font-bold text-gray-600 dark:text-gray-300">
                     {memberCount}
                   </div>
@@ -711,16 +711,16 @@ const ContextDashboard = () => {
                 {members.map((member) => (
                   <div
                     key={member.user_id}
-                    className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                    <div className="flex items-start sm:items-center space-x-3 mb-3 sm:mb-0">
+                      <div className="w-10 h-10 bg-blue-500 dark:bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold flex-shrink-0">
                         {member.full_name
                           ? member.full_name.charAt(0).toUpperCase()
                           : "?"}
                       </div>
-                      <div>
-                        <div className="font-medium text-gray-900 dark:text-white">
+                      <div className="min-w-0">
+                        <div className="font-medium text-gray-900 dark:text-white truncate">
                           {member.full_name || "Unknown User"}
                           {member.user_id === user?.id && (
                             <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
@@ -728,7 +728,7 @@ const ContextDashboard = () => {
                             </span>
                           )}
                         </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-gray-500 dark:text-gray-400 truncate">
                           {member.email || "No email"}
                         </div>
                         <div className="text-xs text-gray-400 dark:text-gray-500">
@@ -739,65 +739,64 @@ const ContextDashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      {/* Show Owner badge for context creator */}
-                      {member.isOwner ? (
-                        <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
-                          Owner 👑
-                        </span>
-                      ) : (
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            member.role === "admin"
-                              ? "bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200"
-                              : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
-                          }`}
-                        >
-                          {member.role === "admin" ? "Admin 👑" : "Member"}
-                        </span>
-                      )}
+
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 space-y-2 sm:space-y-0 w-full sm:w-auto">
+                      <div className="flex items-center space-x-2 justify-start sm:justify-end w-full sm:w-auto">
+                        {/* Show Owner badge for context creator */}
+                        {member.isOwner ? (
+                          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 text-white">
+                            Owner 👑
+                          </span>
+                        ) : (
+                          <span
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              member.role === "admin"
+                                ? "bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200"
+                                : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200"
+                            }`}
+                          >
+                            {member.role === "admin" ? "Admin 👑" : "Member"}
+                          </span>
+                        )}
+                      </div>
 
                       {/* Only show action buttons if admin AND not the owner AND not yourself */}
                       {context.isAdmin &&
-                        !member.isOwner &&
-                        member.user_id !== user?.id && (
-                          <>
-                            {member.role === "member" ? (
-                              <button
-                                onClick={() =>
-                                  handlePromoteMember(member.user_id)
-                                }
-                                className="px-3 py-1 bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white text-sm rounded transition-colors"
-                              >
-                                Promote
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() =>
-                                  handleDemoteMember(member.user_id)
-                                }
-                                className="px-3 py-1 bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white text-sm rounded transition-colors"
-                              >
-                                Demote
-                              </button>
-                            )}
+                      !member.isOwner &&
+                      member.user_id !== user?.id ? (
+                        <div className="flex flex-col sm:flex-row sm:space-x-2 w-full sm:w-auto">
+                          {member.role === "member" ? (
                             <button
-                              onClick={() => handleRemoveMember(member.user_id)}
-                              className="px-3 py-1 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white text-sm rounded transition-colors"
+                              onClick={() =>
+                                handlePromoteMember(member.user_id)
+                              }
+                              className="w-full sm:w-auto px-3 py-1 bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white text-sm rounded transition-colors"
                             >
-                              Remove
+                              Promote
                             </button>
-                          </>
-                        )}
-
-                      {/* Show protected message for owner */}
-                      {member.isOwner &&
+                          ) : (
+                            <button
+                              onClick={() => handleDemoteMember(member.user_id)}
+                              className="w-full sm:w-auto px-3 py-1 bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white text-sm rounded transition-colors"
+                            >
+                              Demote
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleRemoveMember(member.user_id)}
+                            className="w-full sm:w-auto px-3 py-1 bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white text-sm rounded transition-colors"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : // If protected owner message
+                      member.isOwner &&
                         context.isAdmin &&
-                        member.user_id !== user?.id && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400 italic">
-                            Protected
-                          </span>
-                        )}
+                        member.user_id !== user?.id ? (
+                        <span className="text-xs text-gray-500 dark:text-gray-400 italic">
+                          Protected
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 ))}
