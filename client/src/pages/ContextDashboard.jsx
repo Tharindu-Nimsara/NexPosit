@@ -249,17 +249,17 @@ const ContextDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               Projects
             </h2>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => navigate(`/contexts/${contextId}/grid`)}
-                className="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
+                className="w-full sm:w-auto bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors text-center"
               >
                 📅 View All Posts
               </button>
               {isAdmin && (
                 <button
                   onClick={() => setShowMembersModal(true)}
-                  className="bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  className="w-full sm:w-auto bg-purple-500 hover:bg-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors text-center"
                 >
                   👥 Manage Members ({members.length})
                 </button>
@@ -267,7 +267,7 @@ const ContextDashboard = () => {
               {isAdmin && (
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors text-center"
                 >
                   + Create Project
                 </button>
