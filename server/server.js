@@ -10,7 +10,9 @@ import contextRoutes from "./routes/context.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import publicRoutes from "./routes/public.routes.js";
-import passwordResetRoutes from "./routes/passwordReset.routes.js"; 
+import passwordResetRoutes from "./routes/passwordReset.routes.js";
+import upcomingPostsRoutes from "./routes/upcomingPosts.routes.js";
+import publicUpcomingPostsRoutes from "./routes/publicUpcomingPosts.routes.js";
 
 // Load environment variables
 dotenv.config();
@@ -21,6 +23,8 @@ const PORT = process.env.PORT || 5000;
 // ===== MIDDLEWARE (Order matters!) =====
 
 // 1. CORS - MUST come first, before any routes
+
+//app.use(cors()); // Allows all origins for development only
 app.use(
   cors({
     origin: process.env.CLIENT_URL
@@ -28,6 +32,7 @@ app.use(
           process.env.CLIENT_URL,
           "http://localhost:5173",
           "http://localhost:5174",
+          // Add External sites that will consume the API
         ]
       : [
           "http://localhost:5173",
@@ -59,7 +64,14 @@ app.get("/", (req, res) => {
 });
 
 // Health check route
-app.get("/api/health", async (req, res) => {
+
+// Simple health check for cron-job.org (minimal response)
+app.get("/api/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+// Detailed health check (use this for debugging, not for cron jobs)
+app.get("/api/health/detailed", async (req, res) => {
   const dbConnected = await testConnection();
   res.json({
     status: "ok",
@@ -98,6 +110,10 @@ app.use((err, req, res, next) => {
     error: err.message || "Internal server error",
   });
 });
+
+// API to retrieve upcoming posts
+app.use("/api", upcomingPostsRoutes);
+app.use("/api/public", publicUpcomingPostsRoutes);
 
 // Start server
 app.listen(PORT, async () => {
