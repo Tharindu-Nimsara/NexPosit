@@ -11,8 +11,8 @@ import projectRoutes from "./routes/project.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import publicRoutes from "./routes/public.routes.js";
 import passwordResetRoutes from "./routes/passwordReset.routes.js";
-import upcomingPostsRoutes from "./routes/upcomingPosts.routes.js";
-import publicUpcomingPostsRoutes from "./routes/publicUpcomingPosts.routes.js";
+// import upcomingPostsRoutes from "./routes/upcomingPosts.routes.js";
+// import publicUpcomingPostsRoutes from "./routes/publicUpcomingPosts.routes.js";
 
 // Load environment variables
 dotenv.config();
@@ -112,8 +112,8 @@ app.use((err, req, res, next) => {
 });
 
 // API to retrieve upcoming posts
-app.use("/api", upcomingPostsRoutes);
-app.use("/api/public", publicUpcomingPostsRoutes);
+// app.use("/api", upcomingPostsRoutes);
+// app.use("/api/public", publicUpcomingPostsRoutes);
 
 // Start server
 app.listen(PORT, async () => {
